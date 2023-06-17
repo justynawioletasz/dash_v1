@@ -1,0 +1,61 @@
+import pandas as pd
+import random
+from datetime import datetime, timedelta
+from faker import Faker
+
+fake = Faker()
+
+data_people = pd.DataFrame(columns=['Customer_ID', 'First Name', 'Last Name', 
+                                    'Height', 'Sex', 'Weight', 'Avatar'])
+
+data_days = pd.DataFrame(columns=['Customer_ID', 'Date',
+                                  'Pulse', 'Blood_Preasure', 'Steps_daily'])
+
+for klient_id in range(0,30):
+        sex = random.choice(['M', 'K'])
+        height = random.randint(158,203)
+        weight = random.randint(50,100)
+        if sex == 'M':
+            name = fake.first_name_male()
+        else:
+            name = fake.first_name_female()
+        surname = fake.last_name()
+        photo = fake.image_url(width=200, height=200)
+        pulse = random.randint(60,100)
+        steps = random.randint(4000, 15000)
+        preasure = f"{random.randint(90,160)}/{random.randint(50,90)}"
+        osoba = pd.DataFrame({ 'Customer_ID' : klient_id, 
+                              'First Name' : name, 
+                              'Last Name' : surname, 
+                              'Height' : height, 
+                              'Sex' : sex, 
+                              'Weight' : weight, 
+                              'Avatar' : photo}, index=[0])
+        data_people = pd.concat([data_people, osoba], ignore_index=True)
+
+
+
+start_date = datetime.now().date() - timedelta(days=90)
+end_date = datetime.now().date()
+dates = pd.date_range(start=start_date, end=end_date, freq='D')
+
+for klient_id in data_people['Customer_ID']:
+        for date in dates:
+            pulse = random.randint(60,100)
+            steps = random.randint(4000, 15000)
+            preasure = f"{random.randint(90,160)}/{random.randint(50,90)}"
+            pomiar = pd.DataFrame({'Customer_ID' : klient_id+1,
+                              'Date' : date,
+                              'Pulse' : pulse,
+                              'Blood_Preasure' : preasure, 
+                              'Steps_daily' : steps}, index=[0])
+            data_days = pd.concat([data_days, pomiar], ignore_index=True)
+
+
+
+data_people.set_index('Customer_ID', inplace=True)
+data_people.index += 1
+data_people.to_excel("D:/data_people.xlsx")
+data_days.to_excel("D:/data_days.xlsx")
+data_people
+data_days
